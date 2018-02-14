@@ -1,0 +1,6 @@
+*.pck
+*.txt
+*.pyc
+.vscode/
+.idea/
+old/
