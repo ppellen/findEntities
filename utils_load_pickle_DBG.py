@@ -22,3 +22,4 @@ utils_load_pickle.print_result_from_pickle_file(temp_pickle_file) # creates a tx
     #  #####################################################################################
 
 #  Comment added for test of git/github with VSCode
+#  Comment added for test of git/github with PyCharm
