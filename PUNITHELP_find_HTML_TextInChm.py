@@ -102,7 +102,7 @@ def removeFromCHMFileList( myCHMFileList, *theseCHM ):
 
 def main():
 
-    for text_to_find in ["M580","X80"]:  # ["socollaborative", "M340", "struxure", "Plant", "Unity" ]:
+    for text_to_find in ("advantys",):#  ["M580","X80"]:  # ["socollaborative", "M340", "struxure", "Plant", "Unity" ]:
         find_string_in_html_files(r'C:\pytmp\UnitySource',text_to_find)
 
 
@@ -194,7 +194,7 @@ def find_string_in_html_files(source_dir, string_to_find):
     temp_pickle_file = string_to_find + "_found.pck"
     pickle.dump( { 'Character string searched' : string_to_find , 'found_in': all_found}, open( temp_pickle_file, "wb" ) )
 
-    utils_load_pickle.print_result_from_pickle_file(temp_pickle_file) # creates a txt file
+    utils_load_pickle.print_result_from_pickle_file(temp_pickle_file, True) # creates a txt file
 
     #  #####################################################################################
 
