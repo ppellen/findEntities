@@ -23,7 +23,7 @@ dbg = False
 path_here = os.path.dirname(os.path.abspath(__file__))
 
 
-class myParserClass(HTMLParser):
+class myParserClass(object, HTMLParser):
 
     def __init__(self, chm_name, string_to_find):
         self.chm_name = chm_name
@@ -91,6 +91,37 @@ class myParserClass(HTMLParser):
 from os import chdir, walk, listdir, path
 from os.path import isdir
 
+# from for_test_1 import myNewParserClass  TODO ImportError: cannot import name myNewParserClass
+import re
+
+
+class myNewParserClass(myParserClass):
+    def __init__(self, chm_name, string_to_find):
+
+        self.regexp_for_search = r'(\b'+string_to_find.lower()+r'\b)'  # ( ) to get groups
+        self.regexp_for_search_compiled=re.compile(self.regexp_for_search, re.I)  # re.I : ignore case https://docs.python.org/2/library/re.html#re.search
+
+        super(myNewParserClass, self).__init__(chm_name, string_to_find)
+
+    def handle_data(self, data):
+
+        result = self.regexp_for_search_compiled.search(data.lower())
+        if result is not None:
+            #  re.finditer(pattern, string) returns an iterator over MatchObject objects.
+            MatchObjects = self.regexp_for_search_compiled.finditer(data.lower())
+
+            for thisMatchObject in MatchObjects:
+                if dbg: print thisMatchObject.start(), thisMatchObject.end()
+
+                if not self.currentHtmFile in self.text_found_in.keys():
+                    self.text_found_in[self.currentHtmFile] = 1
+                else:
+                    self.text_found_in[self.currentHtmFile] += 1
+
+            # if dbg: print "found in %s" % (self.currentHtmFile,)
+
+        return HTMLParser.handle_data(self, data)
+
 
 def removeFromCHMFileList( myCHMFileList, *theseCHM ):
     for thisCHM in theseCHM:
@@ -102,11 +133,12 @@ def removeFromCHMFileList( myCHMFileList, *theseCHM ):
 
 def main():
 
-    for text_to_find in ("advantys",):#  ["M580","X80"]:  # ["socollaborative", "M340", "struxure", "Plant", "Unity" ]:
-        find_string_in_html_files(r'C:\pytmp\UnitySource',text_to_find)
+    for text_to_find in [r"\bUnity\b"]: # ("advantys",):  ["M580","X80"]:  ["socollaborative", "M340", "struxure", "Plant", "Unity" ]:  [r"Unity\sPro"]
+        report_file_name = "Unity_alone"
+        find_string_in_html_files(r'C:\Users\PPELLEN\Documents\py\findEntities\synthese\test_iolib\iolib_psg119',text_to_find, report_file_name) #    r'C:\pytmp\UnitySource'
 
 
-def find_string_in_html_files(source_dir, string_to_find):
+def find_string_in_html_files(source_dir, string_to_find, report_file_name):
     _space = r' '
 
     dir_ = source_dir
@@ -119,17 +151,20 @@ def find_string_in_html_files(source_dir, string_to_find):
     myModulesList=[]
     i = 0
 
-    dirList = listdir( dir_ )
-    for d in dirList:
-        if isdir(d) : # os.path.
-            if d <> 'PUnit' and d <> 'symax':
-                myModulesList.append(d.lower())
+    if not dbg:
+        dirList = listdir( dir_ )
+        for d in dirList:
+            if isdir(d) : # os.path.
+                if d <> 'PUnit' and d <> 'symax':
+                    myModulesList.append(d.lower())
 
-    removeFromCHMFileList ( myModulesList,  # "trending",
-                            "PMESE", "PMEMSTR", "1000", "1001", "1002",
-                            "atv6xxprog", "atv6xxdtm", "atv6xx")
+        removeFromCHMFileList ( myModulesList,  # "trending",
+                                "PMESE", "PMEMSTR", "1000", "1001", "1002",
+                                "atv6xxprog", "atv6xxdtm", "atv6xx")
 
     scans = 0
+
+    if dbg: myModulesList = ('iolib',)
 
     for myModule in myModulesList:
 
@@ -144,7 +179,7 @@ def find_string_in_html_files(source_dir, string_to_find):
 
         # if dbg : myHtmFilesList=['140NOC77101_D-NA-0013949.htm']
 
-        myParser =  myParserClass(myModule, string_to_find)
+        myParser =  myNewParserClass(myModule, string_to_find)
 
         for thisHtmFile in myHtmFilesList:
             myParser.currentHtmFile= thisHtmFile
@@ -191,7 +226,9 @@ def find_string_in_html_files(source_dir, string_to_find):
     pass
     chdir(path_here)
 
-    temp_pickle_file = string_to_find + "_found.pck"
+    # string_to_find = string_to_find.replace(r'\s',r'_')
+    # temp_pickle_file = string_to_find + "_found.pck"
+    temp_pickle_file = report_file_name+"_found.pck"
     pickle.dump( { 'Character string searched' : string_to_find , 'found_in': all_found}, open( temp_pickle_file, "wb" ) )
 
     utils_load_pickle.print_result_from_pickle_file(temp_pickle_file, True) # creates a txt file
