@@ -7,3 +7,7 @@ old/
 advantys/
 *.csv
 synthese/
+py_reports/
+*.pdf
+*.html
+*.htm

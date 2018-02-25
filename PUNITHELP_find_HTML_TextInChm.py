@@ -228,7 +228,7 @@ def find_string_in_html_files(source_dir, string_to_find, report_file_name):
 
     # string_to_find = string_to_find.replace(r'\s',r'_')
     # temp_pickle_file = string_to_find + "_found.pck"
-    temp_pickle_file = report_file_name+"_found.pck"
+    temp_pickle_file = 'py_reports'+ os.sep + report_file_name+"_found.pck"
     pickle.dump( { 'Character string searched' : string_to_find , 'found_in': all_found}, open( temp_pickle_file, "wb" ) )
 
     utils_load_pickle.print_result_from_pickle_file(temp_pickle_file, True) # creates a txt file
